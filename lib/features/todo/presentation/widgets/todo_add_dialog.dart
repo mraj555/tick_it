@@ -42,9 +42,9 @@ class _TodoAddDialogState extends State<TodoAddDialog> {
                     final title = _controller.text.trim();
 
                     if (title.isEmpty) {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(SnackBar(content: Text("Please enter a title")));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Please enter a title")),
+                      );
                       return;
                     }
                   },

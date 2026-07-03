@@ -17,7 +17,9 @@ class TodoTile extends StatelessWidget {
             Expanded(
               child: Text(
                 "Task",
-                style: textTheme.titleMedium?.copyWith(decoration: TextDecoration.none),
+                style: textTheme.titleMedium?.copyWith(
+                  decoration: TextDecoration.none,
+                ),
               ),
             ),
             IconButton(onPressed: () {}, icon: Icon(Icons.edit)),
