@@ -1,71 +1,66 @@
 # tick_it
 
-Tick It is a Flutter application scaffold designed around a feature-first architecture with a focused todo experience. The codebase is intentionally organized so that the app shell, shared infrastructure, and feature-specific logic remain separate and easy to extend.
+Tick It is a Flutter application scaffold built around a feature-first architecture with a minimal todo experience. The repository is organized to keep the app shell, shared design system, and feature code separate so a next developer can understand the code flow and extend the app efficiently.
 
 ## Overview
 
-The current implementation is intentionally minimal. The app boots from the Flutter entry point, creates a Riverpod scope, and renders a single todo screen as the initial home experience. The repository already includes the folder structure and dependencies needed for a more complete todo feature to be built on top of this foundation.
+The app boots from `lib/main.dart`, establishes a global Riverpod provider scope, and renders a single todo home screen. The current implementation provides the structural foundation and theme support required for a more complete todo application.
 
 ## Tech Stack
 
 - Flutter SDK 3.12+
 - Dart
-- Material 3 UI
-- State management: Flutter Riverpod
-- Code generation: Riverpod annotations, Riverpod generator, Freezed, Build Runner
-- Linting and developer tooling: Flutter Lints, Riverpod Lint
-- Cross-platform support: Android, iOS, Linux, macOS, Windows, and Web
+- Material 3 UI system
+- State management: Flutter Riverpod (`flutter_riverpod`)
+- Code generation support: Riverpod annotations (`riverpod_annotation`), Freezed (`freezed`, `freezed_annotation`), Build Runner (`build_runner`), Riverpod generator (`riverpod_generator`)
+- Linting and static analysis: Flutter Lints (`flutter_lints`), Riverpod Lint (`riverpod_lint`)
+- Cross-platform targets: Android, iOS, Linux, macOS, Windows, Web
 
 ## Architecture
 
-The project follows a layered architecture with separate responsibilities:
+The project follows a layered feature architecture that separates responsibilities:
 
-1. App layer
-   - The root application bootstrap lives in lib/main.dart.
-   - The global app shell and app-level configuration live in lib/app/app.dart.
+- `lib/main.dart`: app bootstrap and provider initialization.
+- `lib/app/`: root app widget and app-level configuration.
+- `lib/core/`: shared resources such as theme and color definitions.
+- `lib/features/<feature>/`: feature-specific implementation.
 
-2. Core layer
-   - Shared concerns such as theming and design tokens live in lib/core/.
-   - This layer is meant for reusable app-wide resources that are not tied to a single feature.
+Within a feature, the conventions are:
 
-3. Feature layer
-   - Feature-specific code is grouped under lib/features/<feature-name>/.
-   - The current feature is todo, and it is divided into presentation, application, domain, and data layers.
+- `presentation/`: UI screens and widgets.
+- `application/`: state management, providers, controllers, and use-case orchestration.
+- `domain/`: business entities, value objects, and domain rules.
+- `data/`: repositories, data sources, and persistence adapters.
 
-This separation keeps UI, state, business rules, and data concerns independent while remaining easy for a new developer to navigate.
+This structure encourages independent evolution of UI, business logic, and data access.
 
 ## App Flow and File Connections
 
-The main runtime path is:
+1. `lib/main.dart`
+   - Entry point for the Flutter app.
+   - Creates `ProviderScope` for Riverpod.
+   - Instantiates `MyApp` from `lib/app/app.dart`.
 
-1. lib/main.dart
-   - Starts the app with runApp.
-   - Wraps the application in ProviderScope so Riverpod is available throughout the widget tree.
+2. `lib/app/app.dart`
+   - Builds the root `MaterialApp`.
+   - Applies the dark theme from `lib/core/theme/app_theme.dart`.
+   - Sets the home screen to `TodoScreen`.
 
-2. lib/app/app.dart
-   - Builds the root MaterialApp.
-   - Applies the shared app theme.
-   - Sets the initial home screen to TodoScreen.
+3. `lib/core/theme/app_theme.dart`
+   - Defines the shared Material 3 theme.
+   - Configures color scheme, button theme, card theme, and input decoration.
 
-3. lib/core/theme/app_theme.dart
-   - Defines the dark Material 3 theme used by the app.
-   - It is consumed by MyApp through the MaterialApp theme configuration.
+4. `lib/core/theme/app_colors.dart`
+   - Defines the app palette with named color constants.
+   - Supports consistent styling across the app.
 
-4. lib/features/todo/presentation/screens/todo_screen.dart
-   - Represents the current screen displayed to the user.
-   - This is the UI entry point for the todo feature and is currently a simple scaffold with placeholder content.
+5. `lib/features/todo/presentation/screens/todo_screen.dart`
+   - Current home screen for the todo feature.
+   - Renders a `Scaffold` and includes `OverviewCard`.
 
-5. lib/features/todo/presentation/widgets/
-   - Intended for reusable UI widgets that belong to the todo feature.
-
-6. lib/features/todo/application/
-   - Intended for providers, controllers, and feature-level use cases.
-
-7. lib/features/todo/domain/
-   - Intended for business entities, rules, and feature contracts.
-
-8. lib/features/todo/data/
-   - Intended for repositories, data sources, and persistence adapters.
+6. `lib/features/todo/presentation/widgets/overview_card.dart`
+   - A reusable UI component for todo progress.
+   - Demonstrates how presentation widgets consume theme and styling.
 
 ## Project Structure
 
@@ -87,53 +82,62 @@ lib/
         screens/
           todo_screen.dart
         widgets/
+          overview_card.dart
 ```
 
 ## Folder Responsibilities
 
-### lib/main.dart
+### `lib/main.dart`
 
 - Flutter application entry point.
-- Responsible for bootstrapping the app and installing the Riverpod provider scope.
+- Bootstraps global Riverpod provider scope.
+- Starts the app by rendering `MyApp`.
 
-### lib/app/app.dart
+### `lib/app/app.dart`
 
-- Root app widget.
-- Central place for app-level UI configuration such as theme selection and the initial screen.
+- Defines the root application widget.
+- Configures app-wide theme settings.
+- Sets the initial home widget.
 
-### lib/core/theme/
+### `lib/core/theme/`
 
-- Shared styling and theme configuration.
-- Contains the app color palette and the Material theme definition.
+- Contains shared theme and styling assets.
+- Centralizes the color palette and theme data.
+- Should host reusable design tokens and appearance settings.
 
-### lib/features/todo/presentation/
+### `lib/features/todo/presentation/`
 
-- Contains screen and widget implementations for the todo experience.
-- This layer should stay focused on UI composition and user interaction.
+- Contains UI code for the todo feature.
+- Includes screens and reusable widgets.
+- Should remain focused on visual composition and interaction.
 
-### lib/features/todo/application/
+### `lib/features/todo/application/`
 
-- Contains state management and feature orchestration logic.
-- This is where providers, controllers, and use-case logic should live.
+- Intended for state providers, controllers, and orchestration logic.
+- Should expose feature state and actions to presentation widgets.
 
-### lib/features/todo/domain/
+### `lib/features/todo/domain/`
 
-- Contains the business model and domain rules for the todo feature.
-- This layer should be independent from UI and data implementation details.
+- Intended for todo feature business entities and domain rules.
+- Should remain independent of UI and persistence details.
 
-### lib/features/todo/data/
+### `lib/features/todo/data/`
 
-- Contains repositories and data access code for the todo feature.
-- This is where persistence or network integrations should be implemented.
+- Intended for data access, repositories, and storage adapters.
+- Should host persistence, networking, or mock implementations.
 
 ## Current Implementation Status
 
-The repository currently contains the architectural skeleton and the initial todo screen. The present app is a minimal scaffold, and the next step is to populate the application, domain, and data layers with real todo functionality.
+- App bootstrap exists in `lib/main.dart`.
+- Root app widget is implemented in `lib/app/app.dart`.
+- Shared dark theme and colors are available in `lib/core/theme/`.
+- Todo screen and a feature widget are implemented in `lib/features/todo/presentation/`.
+- `application/`, `domain/`, and `data/` folders exist as ready extension points.
 
-## Development Conventions
+## Notes for New Developers
 
-- Keep feature-specific code inside the corresponding folder under lib/features/.
-- Avoid placing business logic directly inside screen widgets.
-- Use Riverpod providers for state and dependency flow.
-- Keep app-wide configuration in lib/app and shared design concerns in lib/core.
-- If code generation is introduced, keep it aligned with the existing Build Runner setup.
+- Keep feature-specific code inside `lib/features/<feature>/`.
+- Keep app configuration inside `lib/app/` and shared styles in `lib/core/`.
+- Avoid placing business logic directly inside UI widgets.
+- Use Riverpod providers for state and dependency management.
+- The current repository is a scaffold designed for future feature expansion.
