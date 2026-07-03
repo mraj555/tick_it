@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tick_it/features/todo/presentation/widgets/overview_card.dart';
+import 'package:tick_it/features/todo/presentation/widgets/todo_add_dialog.dart';
 import 'package:tick_it/features/todo/presentation/widgets/todo_tile.dart';
 
 class TodoScreen extends StatelessWidget {
@@ -7,10 +8,6 @@ class TodoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final textTheme = theme.textTheme;
-    final colorScheme = theme.colorScheme;
-
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -27,6 +24,12 @@ class TodoScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showDialog(context: context, builder: (context) => TodoAddDialog());
+        },
+        child: Icon(Icons.add),
       ),
     );
   }

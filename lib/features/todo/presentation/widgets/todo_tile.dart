@@ -7,7 +7,6 @@ class TodoTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
-    final colorScheme = theme.colorScheme;
 
     return Card(
       child: Padding(
@@ -18,9 +17,7 @@ class TodoTile extends StatelessWidget {
             Expanded(
               child: Text(
                 "Task",
-                style: textTheme.titleMedium?.copyWith(
-                  decoration: TextDecoration.none,
-                ),
+                style: textTheme.titleMedium?.copyWith(decoration: TextDecoration.none),
               ),
             ),
             IconButton(onPressed: () {}, icon: Icon(Icons.edit)),
