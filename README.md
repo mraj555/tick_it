@@ -5,67 +5,44 @@ Tick It is a small Flutter sample app that demonstrates a feature-first architec
 ## Tech stack
 
 - Flutter SDK 3.12+ with Dart 3
-- Material 3 design system
+- Material 3 UI system
 - State management: `flutter_riverpod`
-- Code generation support: `riverpod_annotation`, `freezed_annotation`, `freezed`, `riverpod_generator`, `build_runner`
+- Code generation: `riverpod_annotation`, `freezed_annotation`, `freezed`, `riverpod_generator`, `build_runner`
 - Linting: `flutter_lints`, `riverpod_lint`
-- Cross-platform support: Android, iOS, Linux, macOS, Windows, Web
+- Cross-platform targets: Android, iOS, Linux, macOS, Windows, Web
 - Icons: `cupertino_icons`
 
-## Architecture
+## Architecture overview
 
-This project uses a layered, feature-oriented architecture.
+This codebase follows a feature-first, layered architecture:
 
-Top-level layout:
+- `lib/main.dart` bootstraps the app and provides the Riverpod root scope.
+- `lib/app/` contains the app shell, theme binding, and high-level configuration.
+- `lib/core/` contains shared resources such as theme tokens and reusable design values.
+- `lib/features/<feature>/` contains feature-specific implementation, separated by responsibility.
 
-- `lib/main.dart` — app entry point and Riverpod root scope
-- `lib/app/` — app root widget and global configuration
-- `lib/core/` — shared design tokens and app-wide resources
-- `lib/features/<feature>/` — feature-specific implementation modules
+For each feature, responsibilities are typically split into:
 
-Feature modules are organized by responsibility:
+- `presentation/` — widgets, screens, dialogs, and UI composition.
+- `application/` — state classes, controllers/providers, and orchestrating feature behavior.
+- `domain/` — value objects, entities, and business models.
+- `data/` — repositories, storage adapters, and persistence/data source logic.
 
-- `presentation/` — UI widgets, screens, dialogs, and presentation logic
-- `application/` — feature state, providers, controllers, use cases, and orchestration
-- `domain/` — entities, models, and business rules
-- `data/` — repositories, data sources, and persistence adapters
-
-This structure helps developers add new features without mixing presentation code with domain or data concerns.
+This separation helps keep UI code independent from business logic, and makes future extension easier.
 
 ## App startup flow
 
 1. `lib/main.dart`
-   - Calls `runApp()` and creates `ProviderScope` for Riverpod.
-   - Ensures providers are available throughout the widget tree.
-
+   - Calls `runApp()` and wraps the app with `ProviderScope` so Riverpod providers are available globally.
 2. `lib/app/app.dart`
-   - Defines `MyApp`, the root `MaterialApp` widget.
-   - Configures dark theme mode and disables the debug banner.
-   - Sets `TodoScreen` as the home screen.
-
+   - Builds `MaterialApp` and applies `AppTheme.themeData` as the dark theme.
+   - Configures `TodoScreen` as the home screen.
 3. `lib/core/theme/app_theme.dart`
-   - Provides `AppTheme.themeData` for the application.
-   - Configures Material 3 theme settings, color scheme, input decoration, cards, and buttons.
-
+   - Defines the shared `ThemeData` for the entire app with Material 3 styling.
 4. `lib/core/theme/app_colors.dart`
-   - Defines shared color constants such as `cod_gray`, `outrageous_orange`, and `emerald`.
-   - Used by app theme and widgets to keep the palette consistent.
-
+   - Defines centralized color constants used by the theme and widgets.
 5. `lib/features/todo/presentation/screens/todo_screen.dart`
-   - Builds the main feature screen with an overview card and todo list.
-   - Opens `TodoAddDialog` when the floating action button is pressed.
-
-6. `lib/features/todo/presentation/widgets/overview_card.dart`
-   - Displays progress information and completion status.
-   - Uses theme values from the current `BuildContext`.
-
-7. `lib/features/todo/presentation/widgets/todo_tile.dart`
-   - Shows a todo item row with a checkbox, label, and action icons.
-   - Uses themed text and card styling.
-
-8. `lib/features/todo/presentation/widgets/todo_add_dialog.dart`
-   - Presents a dialog for entering a new todo title.
-   - Validates input and closes the dialog on cancel.
+   - Builds the feature screen and composes the todo overview card, todo list, and add button.
 
 ## Project structure
 
@@ -81,9 +58,12 @@ lib/
   features/
     todo/
       application/
-        todos_state.dart
-        todos_state.freezed.dart
-      data/
+        controller/
+          todos_controller.dart
+          todos_controller.g.dart
+        state/
+          todos_state.dart
+          todos_state.freezed.dart
       domain/
         todo.dart
         todo.freezed.dart
@@ -96,83 +76,99 @@ lib/
           todo_tile.dart
 ```
 
-## Folder and file responsibilities
+## Directory and file responsibilities
 
 ### `lib/main.dart`
 
 - App entry point.
-- Provides `ProviderScope` for all Riverpod providers.
-- Starts the Flutter app with `MyApp`.
+- Wraps `MyApp` with `ProviderScope` for Riverpod.
+- Keeps bootstrap logic minimal and separate from UI.
 
 ### `lib/app/app.dart`
 
-- Root application widget.
-- Configures theme and home screen.
-- Keeps app-level configuration separate from feature implementation.
+- Defines the app shell and top-level `MaterialApp`.
+- Applies dark theme mode and disables the debug banner.
+- Sets the home screen for the app.
 
 ### `lib/core/theme/app_theme.dart`
 
-- Central `ThemeData` definition for the app.
-- Uses shared `AppColors` values.
-- Controls global appearance for cards, buttons, input fields, and backgrounds.
+- Centralizes the global `ThemeData` configuration.
+- Configures Material 3, color scheme, scaffold background, cards, buttons, and input styles.
 
 ### `lib/core/theme/app_colors.dart`
 
-- Central source of truth for app colors.
-- Provides semantic naming to avoid hard-coded colors in widgets.
+- Central source for shared color constants.
+- Used by `AppTheme` and can be referenced anywhere UI appearance needs to remain consistent.
 
 ### `lib/features/todo/presentation/screens/todo_screen.dart`
 
-- Main todo screen layout.
-- Combines `OverviewCard`, a list of `TodoTile` widgets, and the add button.
+- Constructs the main todo feature screen.
+- Renders `OverviewCard`, a `ListView` of `TodoTile` widgets, and the add button.
+- Shows `TodoAddDialog` when the floating action button is pressed.
 
 ### `lib/features/todo/presentation/widgets/overview_card.dart`
 
-- Progress card displayed at the top of the todo screen.
-- Uses theme styling and color scheme values.
+- Displays the todo progress card at the top of the screen.
+- Uses theme colors and text styles from the current `BuildContext`.
 
 ### `lib/features/todo/presentation/widgets/todo_tile.dart`
 
-- Single todo row widget.
-- Displays a checkbox, task title, and action buttons.
+- Represents a single todo item row.
+- Includes a checkbox, task title, edit icon, and delete icon.
 
 ### `lib/features/todo/presentation/widgets/todo_add_dialog.dart`
 
-- Custom dialog for adding a new todo.
-- Uses `TextField`, action buttons, and validation.
+- Renders a dialog for creating a new todo.
+- Includes a text field, close button, and add button with validation.
 
 ### `lib/features/todo/domain/todo.dart`
 
-- Domain model for a todo item.
-- Defines the shape of todo data used by the feature.
+- Defines the `Todo` entity and value shape.
+- Uses `freezed` for immutability and value equality.
 
-### `lib/features/todo/application/todos_state.dart`
+### `lib/features/todo/application/state/todos_state.dart`
 
-- Candidate state container for todo feature state.
-- Demonstrates `freezed` data classes supporting future state management.
+- Defines the feature state model for todos.
+- Contains the todo list, loading state, and optional error message.
+- Includes an `initial()` factory for default state.
+
+### `lib/features/todo/application/controller/todos_controller.dart`
+
+- Implements a Riverpod `Notifier` for todo state changes.
+- Provides methods like `onAddTodo` to mutate state.
+- Uses `todos_state.dart` and the `Todo` domain model.
+
+### `lib/features/todo/application/controller/todos_controller.g.dart`
+
+- Generated Riverpod provider code.
+- Do not edit directly; generated by `riverpod_generator`.
+
+### `*.freezed.dart` files
+
+- Generated data-class implementations for `freezed` models.
+- Keep source models in `todo.dart` and `todos_state.dart`.
+
+## How code connects
+
+- `main.dart` creates the app root and provider scope.
+- `MyApp` in `app.dart` applies theme and hosts `TodoScreen`.
+- `TodoScreen` composes presentation widgets from the todo feature.
+- Theme values flow from `AppTheme` and `AppColors` into UI widgets.
+- `todos_controller.dart` defines a state controller and provider that can power the UI once wired into `TodoScreen`.
 
 ## Current implementation notes
 
-- The app uses a dark Material 3 theme across the entire UI.
-- `TodoScreen` currently renders a fixed list of placeholder `TodoTile` items.
-- `TodoAddDialog` validates inputs but does not yet persist new todos.
-- The `application`, `domain`, and `data` folders are scaffolded for the full feature lifecycle.
-- `lib/features/todo/data/` is currently empty, making it the natural place for future repository or storage adapters.
-
-## How files connect
-
-- `main.dart` creates the root `ProviderScope` and runs `MyApp`.
-- `app.dart` uses `AppTheme.themeData` and sets `TodoScreen` as the home widget.
-- `TodoScreen` imports and composes `OverviewCard`, `TodoTile`, and `TodoAddDialog`.
-- `OverviewCard`, `TodoTile`, and `TodoAddDialog` derive colors and text styles from the current theme.
-- `AppColors` provides shared color constants used by `AppTheme` and can be referenced by feature widgets.
+- `TodoScreen` currently renders a fixed list of placeholder `TodoTile` widgets.
+- `TodoAddDialog` validates the text field but does not currently add items to the list.
+- The `TodosController` exists and manages state, but it is not yet connected to the screen UI.
+- There is no `data/` implementation in this feature yet, leaving space for persistence or repository integration.
 
 ## Developer guidance
 
-- Add new feature modules under `lib/features/<feature>/`.
-- Keep reusable design tokens and theme logic in `lib/core/`.
-- Place UI-only widgets in `presentation/` and avoid embedding business logic there.
-- Add Riverpod providers, state controllers, and orchestration to `application/`.
-- Define entities and value objects in `domain/`.
-- Add repositories, local storage, or network adapters in `data/`.
-- Keep `lib/app/` focused on app-level bootstrapping and routing.
+- Add a new feature under `lib/features/<feature>/` and follow the feature-first layout.
+- Keep shared theme and design tokens in `lib/core/`.
+- Keep app bootstrap and routing in `lib/app/`.
+- Use `application/` for state and provider orchestration, not direct widget state.
+- Use `domain/` for entities and core business models.
+- Implement persistence and external data access inside `data/` as the feature grows.
+- Prefer small, composable widgets in `presentation/` and avoid embedding business rules there.
