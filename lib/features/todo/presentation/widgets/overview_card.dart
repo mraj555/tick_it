@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 
 class OverviewCard extends StatelessWidget {
-  const OverviewCard({super.key});
+  final int completed_todo;
+  final int total_todo;
+
+  const OverviewCard({
+    super.key,
+    required this.completed_todo,
+    required this.total_todo,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +27,7 @@ class OverviewCard extends StatelessWidget {
                 crossAxisAlignment: .start,
                 children: [
                   Text(
-                    "Todo Progress",
+                    "TickIt Progress",
                     style: textTheme.titleLarge?.copyWith(fontWeight: .bold),
                   ),
                   SizedBox(height: 4),
@@ -41,7 +48,7 @@ class OverviewCard extends StatelessWidget {
                 borderRadius: .circular(12),
               ),
               child: Text(
-                "0/10",
+                "$completed_todo/$total_todo",
                 style: textTheme.titleMedium?.copyWith(fontWeight: .bold),
               ),
             ),
