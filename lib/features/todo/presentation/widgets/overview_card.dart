@@ -19,11 +19,16 @@ class OverviewCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: .start,
                 children: [
-                  Text("Todo Progress", style: textTheme.titleLarge?.copyWith(fontWeight: .bold)),
+                  Text(
+                    "Todo Progress",
+                    style: textTheme.titleLarge?.copyWith(fontWeight: .bold),
+                  ),
                   SizedBox(height: 4),
                   Text(
                     "Complete Your First Task",
-                    style: textTheme.bodyMedium?.copyWith(color: theme.hintColor),
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: theme.hintColor,
+                    ),
                   ),
                 ],
               ),
@@ -31,8 +36,14 @@ class OverviewCard extends StatelessWidget {
             SizedBox(width: 10),
             Container(
               padding: .symmetric(horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(color: colorScheme.primary, borderRadius: .circular(12)),
-              child: Text("0/10", style: textTheme.titleMedium?.copyWith(fontWeight: .bold)),
+              decoration: BoxDecoration(
+                color: colorScheme.primary,
+                borderRadius: .circular(12),
+              ),
+              child: Text(
+                "0/10",
+                style: textTheme.titleMedium?.copyWith(fontWeight: .bold),
+              ),
             ),
           ],
         ),
