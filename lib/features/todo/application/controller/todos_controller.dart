@@ -43,5 +43,26 @@ class TodosController extends _$TodosController {
       final updatedTodos = state.todos.where((todo) => todo.id != id).toList();
       state = state.copyWith(todos: updatedTodos);
     }
+
+    void onUpdateTodo(String id, String title) {
+      final trimmed_title = title.trim();
+
+      if (trimmed_title.isEmpty) return;
+
+      final todo_exist = state.todos.any((todo) => todo.id == id);
+      if (!todo_exist) {
+        state = state.copyWith(errorMessage: "Could not update todo");
+        return;
+      }
+
+      final updatedTodos = state.todos
+          .map(
+            (todo) =>
+                todo.id == id ? todo.copyWith(title: trimmed_title) : todo,
+          )
+          .toList();
+
+      state = state.copyWith(todos: updatedTodos, errorMessage: null);
+    }
   }
 }
