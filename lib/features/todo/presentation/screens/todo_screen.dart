@@ -34,7 +34,16 @@ class TodoScreen extends ConsumerWidget {
                     child: ListView.builder(
                       itemCount: todos.length,
                       itemBuilder: (context, index) {
-                        return TodoTile(todo: todos[index]);
+                        return TodoTile(
+                          todo: todos[index],
+                          onDeleteTodo: () => ref
+                              .read(todosControllerProvider.notifier)
+                              .onDeleteTodo(todos[index].id),
+                          onToggleTodo: () => ref
+                              .read(todosControllerProvider.notifier)
+                              .onToggleTodo(todos[index].id),
+                          onUpdateTodo: () {},
+                        );
                       },
                     ),
                   ),

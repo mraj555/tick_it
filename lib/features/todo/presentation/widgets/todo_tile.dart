@@ -3,8 +3,17 @@ import 'package:tick_it/features/todo/domain/todo.dart';
 
 class TodoTile extends StatelessWidget {
   final Todo todo;
+  final VoidCallback onToggleTodo;
+  final VoidCallback onDeleteTodo;
+  final VoidCallback onUpdateTodo;
 
-  const TodoTile({super.key, required this.todo});
+  const TodoTile({
+    super.key,
+    required this.todo,
+    required this.onToggleTodo,
+    required this.onDeleteTodo,
+    required this.onUpdateTodo,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +25,11 @@ class TodoTile extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: Row(
           children: [
-            Checkbox(value: todo.isCompleted, onChanged: (value) {}, shape: CircleBorder()),
+            Checkbox(
+              value: todo.isCompleted,
+              onChanged: (_) => onToggleTodo(),
+              shape: CircleBorder(),
+            ),
             Expanded(
               child: Text(
                 todo.title,
@@ -25,8 +38,8 @@ class TodoTile extends StatelessWidget {
                 ),
               ),
             ),
-            IconButton(onPressed: () {}, icon: Icon(Icons.edit)),
-            IconButton(onPressed: () {}, icon: Icon(Icons.delete_outline)),
+            IconButton(onPressed: onUpdateTodo, icon: Icon(Icons.edit)),
+            IconButton(onPressed: onDeleteTodo, icon: Icon(Icons.delete_outline)),
           ],
         ),
       ),

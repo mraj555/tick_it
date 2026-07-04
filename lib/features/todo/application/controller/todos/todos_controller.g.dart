@@ -41,7 +41,7 @@ final class TodosControllerProvider
   }
 }
 
-String _$todosControllerHash() => r'6895a613b70bdd260e70d43ea19f6b06e637ff40';
+String _$todosControllerHash() => r'cd94521c970038818708db238d0fb94ff52d13b2';
 
 abstract class _$TodosController extends $Notifier<TodosState> {
   TodosState build();
