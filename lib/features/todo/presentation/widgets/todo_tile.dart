@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:tick_it/features/todo/domain/todo.dart';
 
 class TodoTile extends StatelessWidget {
-  const TodoTile({super.key});
+  final Todo todo;
+
+  const TodoTile({super.key, required this.todo});
 
   @override
   Widget build(BuildContext context) {
@@ -13,12 +16,12 @@ class TodoTile extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: Row(
           children: [
-            Checkbox(value: true, onChanged: (value) {}, shape: CircleBorder()),
+            Checkbox(value: todo.isCompleted, onChanged: (value) {}, shape: CircleBorder()),
             Expanded(
               child: Text(
-                "Task",
+                todo.title,
                 style: textTheme.titleMedium?.copyWith(
-                  decoration: TextDecoration.none,
+                  decoration: todo.isCompleted ? TextDecoration.lineThrough : TextDecoration.none,
                 ),
               ),
             ),

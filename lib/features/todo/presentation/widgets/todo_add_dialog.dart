@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
+typedef AddTodoCallback = void Function(String);
+
 class TodoAddDialog extends StatefulWidget {
-  const TodoAddDialog({super.key});
+  final AddTodoCallback onAddTodo;
+
+  const TodoAddDialog({super.key, required this.onAddTodo});
 
   @override
   State<TodoAddDialog> createState() => _TodoAddDialogState();
@@ -42,11 +46,14 @@ class _TodoAddDialogState extends State<TodoAddDialog> {
                     final title = _controller.text.trim();
 
                     if (title.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Please enter a title")),
-                      );
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(SnackBar(content: Text("Please enter a title")));
                       return;
                     }
+
+                    widget.onAddTodo(title);
+                    Navigator.pop(context);
                   },
                   child: Text("Add"),
                 ),

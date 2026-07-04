@@ -1,252 +1,257 @@
 # TickIt
 
-TickIt is a Flutter todo sample app with a feature-first architecture, a reusable theme system, and clear separation between UI, state logic, and domain models.
+TickIt is a Flutter-based todo application built around a feature-first architecture, Riverpod-driven state management, and a reusable theme system. The project is intentionally structured so a new developer can quickly understand how UI, state, domain models, and shared app infrastructure connect.
+
+## Overview
+
+TickIt currently focuses on one primary feature: managing a simple todo list. The app shell is minimal, while the todo feature is organized into clear layers for presentation, application state, and domain modeling.
 
 ## Tech stack
 
-- Flutter SDK 3.12+ with Dart 3
-- Material 3 design system
-- State management: `flutter_riverpod`
-- Code generation: `riverpod_annotation`, `freezed_annotation`, `freezed`, `riverpod_generator`, `build_runner`
-- Linting: `flutter_lints`, `riverpod_lint`
+- Flutter SDK with Dart
+- Material 3 UI system
+- State management: Flutter Riverpod
+- Code generation: riverpod_annotation, freezed_annotation, freezed, riverpod_generator, build_runner
+- Linting: flutter_lints, riverpod_lint
 - Cross-platform targets: Android, iOS, Linux, macOS, Windows, Web
-- Icons: `cupertino_icons`
+- Icons: cupertino_icons
 
-## Project architecture
+## Architecture at a glance
 
-The app follows a layered, feature-first architecture that keeps features isolated and minimizes cross-cutting dependencies.
+The app follows a layered, feature-first structure:
 
-- `lib/main.dart`: application bootstrap and Riverpod root
-- `lib/app/`: app shell, theme setup, and top-level navigation
-- `lib/core/`: shared design tokens, theme values, and reusable resources
-- `lib/features/<feature>/`: self-contained feature modules
+- app/: shell and application-level composition
+- core/: shared theme and design tokens
+- features/: business features, each isolated in its own folder
+- main.dart: bootstrap point that mounts the app and Riverpod provider scope
 
-Each feature module is organized into:
+Each feature is split into:
 
-- `presentation/`: UI widgets, screens, dialogs, and presentation-only composition
-- `application/`: state controllers, providers, computed state, and behavior orchestration
-- `domain/`: immutable business entities and value models
-- `data/`: persistence and repository adapters (future-ready)
+- presentation/: screens, widgets, dialogs, and UI composition
+- application/: providers, controllers, state models, and derived state logic
+- domain/: immutable business entities and rules
+- data/: persistence or repository adapters (prepared for future expansion)
 
-This layout keeps UI code independent from business rules, enables easier feature growth, and supports testable state management.
+## High-level system map
 
-## File structure overview
+```mermaid
+flowchart TD
+    A[main.dart] --> B[MyApp]
+    B --> C[AppTheme]
+    B --> D[TodoScreen]
+    D --> E[OverviewCard]
+    D --> F[TodoTile]
+    D --> G[TodoAddDialog]
+    D --> H[TodosController]
+    H --> I[TodosState]
+    H --> J[Todo Domain Model]
+    D --> K[CompletedTodosProvider]
+    K --> I
+    C --> L[AppColors]
+```
+
+## How the app is wired
+
+### Entry point
+
+- main.dart creates the app root and wraps it in ProviderScope, which enables Riverpod state management.
+
+### App shell
+
+- app/app.dart builds the MaterialApp and injects the dark theme plus the initial home screen.
+
+### Theme layer
+
+- core/theme/app_theme.dart defines the shared visual design for the app.
+- core/theme/app_colors.dart centralizes color tokens used by the theme.
+
+### Todo feature flow
+
+- TodoScreen is the main view for the feature.
+- It watches todo state from TodosController and derived completed-count state from CompletedTodosProvider.
+- The screen composes the summary card, list rows, and add-todo dialog.
+
+## File connection graph
+
+```mermaid
+graph LR
+    A[lib/main.dart] --> B[lib/app/app.dart]
+    B --> C[lib/core/theme/app_theme.dart]
+    C --> D[lib/core/theme/app_colors.dart]
+    B --> E[lib/features/todo/presentation/screens/todo_screen.dart]
+    E --> F[lib/features/todo/presentation/widgets/overview_card.dart]
+    E --> G[lib/features/todo/presentation/widgets/todo_tile.dart]
+    E --> H[lib/features/todo/presentation/widgets/todo_add_dialog.dart]
+    E --> I[lib/features/todo/application/controller/todos/todos_controller.dart]
+    E --> J[lib/features/todo/application/controller/completed_todos/completed_todos_provider.dart]
+    I --> K[lib/features/todo/application/state/todos_state.dart]
+    I --> L[lib/features/todo/domain/todo.dart]
+    J --> K
+```
+
+## State and UI flow
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant TodoScreen
+    participant TodoAddDialog
+    participant TodosController
+    participant TodosState
+    participant CompletedTodosProvider
+
+    User->>TodoScreen: Open app / tap add button
+    TodoScreen->>TodoAddDialog: Show dialog
+    User->>TodoAddDialog: Enter title and confirm
+    TodoAddDialog->>TodosController: Pass title through callback
+    TodosController->>TodosState: Append new Todo
+    TodosState-->>TodoScreen: Rebuild list state
+    CompletedTodosProvider-->>TodoScreen: Recompute completed count
+    TodoScreen-->>User: Refresh UI
+```
+
+## Visual module map
 
 ```text
 lib/
-  main.dart
-  app/
-    app.dart
-  core/
-    theme/
-      app_colors.dart
-      app_theme.dart
-  features/
-    todo/
-      application/
-        controller/
-          completed_todos/
-            completed_todos_provider.dart
-            completed_todos_provider.g.dart
-          todos/
-            todos_controller.dart
-            todos_controller.g.dart
-        state/
-          todos_state.dart
-          todos_state.freezed.dart
-      domain/
+├── main.dart
+├── app/
+│   └── app.dart
+├── core/
+│   └── theme/
+│       ├── app_colors.dart
+│       └── app_theme.dart
+└── features/
+    └── todo/
+        ├── application/
+        │   ├── controller/
+        │   │   ├── completed_todos/
+        │   │   │   └── completed_todos_provider.dart
+        │   │   └── todos/
+        │   │       └── todos_controller.dart
+        │   └── state/
+        │       └── todos_state.dart
+        ├── domain/
+        │   └── todo.dart
+        ├── presentation/
+        │   ├── screens/
+        │   │   └── todo_screen.dart
+        │   └── widgets/
+        │       ├── overview_card.dart
+        │       ├── todo_add_dialog.dart
+        │       └── todo_tile.dart
+        └── data/
+```
+
+## Mindmap of the project
+
+```mermaid
+mindmap
+  root((TickIt))
+    App Shell
+      main.dart
+      app/app.dart
+    Shared UI
+      core/theme/app_theme.dart
+      core/theme/app_colors.dart
+    Todo Feature
+      Presentation
+        todo_screen.dart
+        overview_card.dart
+        todo_tile.dart
+        todo_add_dialog.dart
+      Application
+        todos_controller.dart
+        completed_todos_provider.dart
+        todos_state.dart
+      Domain
         todo.dart
-        todo.freezed.dart
-      presentation/
-        screens/
-          todo_screen.dart
-        widgets/
-          overview_card.dart
-          todo_add_dialog.dart
-          todo_tile.dart
-      data/
-        (placeholder for persistence and repository code)
+      Data
+        placeholder for persistence/repository APIs
 ```
 
 ## Detailed module responsibilities
 
-### `lib/main.dart`
+### lib/main.dart
 
-- App entry point.
-- Wraps `MyApp` in `ProviderScope` for Riverpod state management.
-- Keeps initialization minimal.
+- Application bootstrap point.
+- Mounts MyApp inside ProviderScope so Riverpod is available throughout the app.
 
-### `lib/app/app.dart`
+### lib/app/app.dart
 
-- Builds the top-level `MaterialApp`.
-- Applies dark theme via `AppTheme.themeData`.
-- Sets `TodoScreen` as the home page.
-- Separates app-level configuration from feature code.
+- Builds the top-level MaterialApp.
+- Applies the dark theme and routes the home screen to TodoScreen.
+- Keeps app-wide UI configuration separate from feature code.
 
-### `lib/core/theme/app_colors.dart`
+### lib/core/theme/app_colors.dart
 
-- Defines app-wide color tokens.
-- Provides named design tokens for primary, background, surface, success, text, and border colors.
-- Centralizes the visual palette.
+- Defines shared color tokens for the app.
+- Keeps the visual palette centralized and reusable.
 
-### `lib/core/theme/app_theme.dart`
+### lib/core/theme/app_theme.dart
 
-- Creates the shared `ThemeData`.
-- Configures Material 3, input decoration, button styles, and card styling.
-- Uses `AppColors` tokens so UI styling remains consistent.
+- Builds the shared ThemeData.
+- Configures Material 3 style defaults, card styling, input decoration, and button appearance.
 
-### `lib/features/todo/domain/todo.dart`
+### lib/features/todo/domain/todo.dart
 
-- Defines the `Todo` entity shape.
-- Uses `freezed` for immutability and equality semantics.
-- Keeps the domain model separate from UI state.
+- Defines the Todo domain entity.
+- Uses Freezed to make instances immutable and easier to compare.
 
-### `lib/features/todo/application/state/todos_state.dart`
+### lib/features/todo/application/state/todos_state.dart
 
-- Defines `TodosState`.
-- Stores a list of `Todo`, a loading flag, and an optional error message.
-- Provides `TodosState.initial()` for clean provider initialization.
+- Represents the state consumed by the todo feature.
+- Holds the todo list, loading flag, and optional error message.
+- Provides an initial state factory for provider bootstrapping.
 
-### `lib/features/todo/application/controller/todos/todos_controller.dart`
+### lib/features/todo/application/controller/todos/todos_controller.dart
 
-- Implements a Riverpod `Notifier` provider.
-- Holds todo state and exposes mutation methods.
-- Adds todos with `onAddTodo(String title)`.
-- Contains helper logic for toggling, updating, and deleting todos.
-- Updates state immutably with `copyWith()`.
+- Implements the primary todo state controller using Riverpod.
+- Owns the state and exposes the mutation logic for adding todos.
+- Updates the state object immutably through copyWith-based transitions.
 
-### `lib/features/todo/application/controller/completed_todos/completed_todos_provider.dart`
+### lib/features/todo/application/controller/completed_todos/completed_todos_provider.dart
 
-- Computes completed todo count from `todosControllerProvider`.
-- Uses provider selection to read only the todos list.
-- Keeps derived state outside the UI layer.
+- Derives a computed value: the number of completed todos.
+- Reads the todo list from the controller state without duplicating state logic in the UI.
 
-### `lib/features/todo/presentation/screens/todo_screen.dart`
+### lib/features/todo/presentation/screens/todo_screen.dart
 
 - Main screen for the todo feature.
-- Watches `todosControllerProvider` and `onCompletedTodosCountProvider`.
-- Renders loading, empty, error, or todo list states.
-- Composes `OverviewCard`, `TodoTile`, and `TodoAddDialog`.
-- Displays a floating action button to add a new todo.
+- Watches controller and computed provider values.
+- Renders empty/loading/error/list states and composes the feature widgets.
 
-### `lib/features/todo/presentation/widgets/overview_card.dart`
+### lib/features/todo/presentation/widgets/overview_card.dart
 
-- Summary card showing completed and total todos.
-- Uses theme styling and primary color accents.
-- Displays progress information in a lightweight card.
+- Displays a summary of completed vs total todos.
+- Provides a simple at-a-glance progress indicator for the feature.
 
-### `lib/features/todo/presentation/widgets/todo_add_dialog.dart`
+### lib/features/todo/presentation/widgets/todo_add_dialog.dart
 
-- Dialog for new todo creation.
-- Includes text field input and validation.
-- Validates title input and shows a snackbar for empty titles.
-- Currently can close the dialog but does not yet dispatch add logic.
+- Collects new todo titles from the user.
+- Validates the input and invokes the callback that reaches the controller.
 
-### `lib/features/todo/presentation/widgets/todo_tile.dart`
+### lib/features/todo/presentation/widgets/todo_tile.dart
 
-- Todo item card UI.
-- Includes a checkbox, title text, edit button, and delete button.
-- Currently placeholder-only; wired UI callbacks should be added next.
+- Renders a single todo item in the list.
+- Shows the checkbox, title, and action icons.
+- Currently acts as a presentational widget receiving a Todo model.
 
-### `lib/features/todo/data/`
+### lib/features/todo/data/
 
-- Placeholder folder for persistence and repository adapters.
-- Use this layer for local storage, remote backend, or data source abstractions.
-- Keeps external dependencies isolated from application and presentation layers.
+- Reserved for future persistence and repository abstractions.
+- Keeps data access concerns out of the UI and application layers.
 
-## Architecture maps and flows
+## Current implementation notes
 
-### High-level architecture map
+- The app shell, theme layer, and todo feature are already connected and running through Riverpod.
+- The main feature flow is in place: add todo, render todo list, and compute completion progress.
+- The current implementation is still evolving in the presentation layer, especially around row actions and deeper controller organization.
 
-```text
-main.dart
-  └─ MyApp (lib/app/app.dart)
-        ├─ AppTheme (lib/core/theme/app_theme.dart)
-        └─ TodoScreen (lib/features/todo/presentation/screens/todo_screen.dart)
-              ├─ OverviewCard
-              ├─ TodoTile
-              └─ TodoAddDialog
+## Developer conventions
 
-Todo feature
-  ├─ domain/todo.dart
-  ├─ application/state/todos_state.dart
-  ├─ application/controller/todos/todos_controller.dart
-  └─ application/controller/completed_todos/completed_todos_provider.dart
-```
-
-### Data and state flow chart
-
-```text
-User taps FAB -> TodoAddDialog opens
-         ↓
-User enters title -> validation -> dispatch onAddTodo
-         ↓
-TodosController builds Todo object -> state update
-         ↓
-TodosState changes -> TodoScreen rebuilds
-         ↓
-Completed todos provider recalculates count
-         ↓
-OverviewCard and todo list UI refresh
-```
-
-### File connection graph
-
-- `main.dart` → launches `MyApp`
-- `app.dart` → applies theme and home screen
-- `AppTheme` → uses `AppColors`
-- `TodoScreen` → consumes `todosControllerProvider`
-- `TodoScreen` → renders presentation widgets
-- `TodosController` → updates `TodosState`
-- `completed_todos_provider` → derives completed count from state
-- `Todo` entity → used by domain and state layers
-
-## Mindmap summary
-
-- TickIt
-  - Core
-    - app_colors.dart
-    - app_theme.dart
-  - App
-    - app.dart
-  - Features
-    - todo
-      - presentation
-        - todo_screen.dart
-        - overview_card.dart
-        - todo_tile.dart
-        - todo_add_dialog.dart
-      - application
-        - todos_controller.dart
-        - completed_todos_provider.dart
-        - todos_state.dart
-      - domain
-        - todo.dart
-      - data
-        - (persistence placeholder)
-
-## Current implementation status
-
-- ✅ App shell and theme are implemented
-- ✅ Todo screen renders dynamic state and derived completed count
-- ⚠️ `TodoTile` is currently a static placeholder UI
-- ⚠️ `TodoAddDialog` validates input but does not yet call controller logic
-- ⚠️ Inline controller helpers need refactoring for reuse and public callbacks
-- ⚠️ Persistence is not yet implemented in `lib/features/todo/data/`
-
-## Developer guidance
-
-- Add new features under `lib/features/<feature>/` using the same layered structure.
-- Keep presentation widgets simple and avoid placing business logic in UI.
-- Use `application/` for state changes, side effects, and provider composition.
-- Keep domain models immutable and plain.
-- Reserve `data/` for storage adapters and repository abstractions.
-- Treat generated files (`*.g.dart`, `*.freezed.dart`) as non-editable outputs.
-
-## Recommended next tasks
-
-- Wire `TodoAddDialog` to `TodosController` to actually add new todos.
-- Update `TodoTile` so each row reflects a real `Todo` object and triggers toggle/edit/delete callbacks.
-- Refactor controller helper methods to be top-level methods on `TodosController` instead of nested inside `onAddTodo`.
-- Add persistence support in `lib/features/todo/data/` with a repository interface.
-- Introduce feature tests for `TodosController` and presentation widget behavior.
+- Add new features under lib/features/<feature>/ using the same layered folder structure.
+- Keep UI widgets presentational and avoid placing business rules inside them.
+- Put state transitions and provider logic in application/.
+- Keep domain models immutable and focused on business concepts.
+- Treat generated files such as _.g.dart and _.freezed.dart as build artifacts rather than hand-edited sources.

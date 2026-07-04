@@ -28,16 +28,13 @@ class TodoScreen extends ConsumerWidget {
           : SafeArea(
               child: Column(
                 children: [
-                  OverviewCard(
-                    completed_todo: completed_count,
-                    total_todo: todos.length,
-                  ),
+                  OverviewCard(completed_todo: completed_count, total_todo: todos.length),
                   SizedBox(height: 12),
                   Expanded(
                     child: ListView.builder(
                       itemCount: todos.length,
                       itemBuilder: (context, index) {
-                        return TodoTile();
+                        return TodoTile(todo: todos[index]);
                       },
                     ),
                   ),
@@ -46,7 +43,14 @@ class TodoScreen extends ConsumerWidget {
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          showDialog(context: context, builder: (context) => TodoAddDialog());
+          showDialog(
+            context: context,
+            builder: (context) => TodoAddDialog(
+              onAddTodo: (title) {
+                ref.read(todosControllerProvider.notifier).onAddTodo(title);
+              },
+            ),
+          );
         },
         child: Icon(Icons.add),
       ),
