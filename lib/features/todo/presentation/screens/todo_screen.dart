@@ -28,7 +28,10 @@ class TodoScreen extends ConsumerWidget {
           : SafeArea(
               child: Column(
                 children: [
-                  OverviewCard(completed_todo: completed_count, total_todo: todos.length),
+                  OverviewCard(
+                    completed_todo: completed_count,
+                    total_todo: todos.length,
+                  ),
                   SizedBox(height: 12),
                   Expanded(
                     child: ListView.builder(
@@ -42,7 +45,21 @@ class TodoScreen extends ConsumerWidget {
                           onToggleTodo: () => ref
                               .read(todosControllerProvider.notifier)
                               .onToggleTodo(todos[index].id),
-                          onUpdateTodo: () {},
+                          onUpdateTodo: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => TodoAddDialog(
+                                onAddTodo: (value) => ref
+                                    .read(todosControllerProvider.notifier)
+                                    .onUpdateTodo(
+                                      todos[index].id,
+                                      value.trim(),
+                                    ),
+                                isEdit: true,
+                                title: todos[index].title.trim(),
+                              ),
+                            );
+                          },
                         );
                       },
                     ),

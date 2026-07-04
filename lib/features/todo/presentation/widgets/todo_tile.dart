@@ -34,12 +34,17 @@ class TodoTile extends StatelessWidget {
               child: Text(
                 todo.title,
                 style: textTheme.titleMedium?.copyWith(
-                  decoration: todo.isCompleted ? TextDecoration.lineThrough : TextDecoration.none,
+                  decoration: todo.isCompleted
+                      ? TextDecoration.lineThrough
+                      : TextDecoration.none,
                 ),
               ),
             ),
             IconButton(onPressed: onUpdateTodo, icon: Icon(Icons.edit)),
-            IconButton(onPressed: onDeleteTodo, icon: Icon(Icons.delete_outline)),
+            IconButton(
+              onPressed: onDeleteTodo,
+              icon: Icon(Icons.delete_outline),
+            ),
           ],
         ),
       ),

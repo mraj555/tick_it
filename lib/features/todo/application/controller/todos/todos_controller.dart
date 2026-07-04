@@ -58,7 +58,9 @@ class TodosController extends _$TodosController {
     }
 
     final updatedTodos = state.todos
-        .map((todo) => todo.id == id ? todo.copyWith(title: trimmed_title) : todo)
+        .map(
+          (todo) => todo.id == id ? todo.copyWith(title: trimmed_title) : todo,
+        )
         .toList();
 
     state = state.copyWith(todos: updatedTodos, errorMessage: null);

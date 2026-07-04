@@ -1,36 +1,36 @@
 # TickIt
 
-TickIt is a Flutter application for managing a simple todo workflow with a clean, layered architecture. The codebase is organized to help the next developer quickly understand where UI, state, domain logic, and shared app infrastructure live.
+TickIt is a Flutter todo application built around a feature-first, layered architecture. Its purpose is to keep the codebase easy to read and extend, especially for the next developer who needs to understand how screens, state, domain models, and shared UI infrastructure connect.
 
 ## Project purpose
 
-TickIt focuses on one primary feature: creating, toggling, editing, and deleting todos. The app is intentionally structured around a feature-first design so that future enhancements can be added without scattering responsibilities across the project.
+The app currently centers on a single feature: managing todos through create, toggle, update, and delete actions. The structure is intentionally organized so future features can be added without mixing UI code, state logic, and business rules.
 
 ## Tech stack
 
 - Flutter SDK with Dart
-- Material 3 design system
-- State management: Flutter Riverpod
-- Code generation: Riverpod annotations, Freezed, Build Runner
-- Linting and quality: flutter_lints, riverpod_lint
-- Cross-platform targets: Android, iOS, Linux, macOS, Windows, Web
-- UI assets: Cupertino icons
+- Material 3 UI system
+- State management with Riverpod
+- Code generation with Riverpod annotations, Freezed, and Build Runner
+- Linting and quality checks with flutter_lints and riverpod_lint
+- Cross-platform targets: Android, iOS, Linux, macOS, Windows, and Web
+- UI assets and icons via Cupertino icons
 
 ## Architecture overview
 
-The application follows a layered, feature-first structure:
+The codebase follows a layered structure with a clear separation of concerns:
 
 - app/: app shell and top-level composition
-- core/: shared theme and design tokens
-- features/: isolated business features, currently centered on todo
-- main.dart: runtime bootstrap and provider scope setup
+- core/: reusable design system elements such as theme and colors
+- features/: business features isolated by domain
+- main.dart: app bootstrap and provider initialization
 
-Each feature is split into four conceptual layers:
+Each feature is organized into four conceptual layers:
 
 - presentation/: screens, dialogs, and reusable widgets
-- application/: controllers, providers, and state objects
+- application/: providers, controllers, and state handling
 - domain/: immutable business models and rules
-- data/: place for persistence or repository implementations
+- data/: future persistence and repository boundaries
 
 ## High-level flow
 
@@ -44,7 +44,7 @@ flowchart TD
     C --> G[TodosController]
     G --> H[TodosState]
     G --> I[Todo]
-    C --> J[CompletedTodosProvider]
+    C --> J[CompletedTodosCountProvider]
     J --> H
 ```
 
@@ -66,7 +66,7 @@ graph LR
     J --> K
 ```
 
-## UI and state interaction
+## Runtime interaction
 
 ```mermaid
 sequenceDiagram
@@ -78,10 +78,10 @@ sequenceDiagram
     participant CompletedTodosProvider
 
     User->>TodoScreen: Open the app
-    TodoScreen->>TodoAddDialog: Show add dialog
+    TodoScreen->>TodoAddDialog: Show add or edit dialog
     User->>TodoAddDialog: Enter title and confirm
-    TodoAddDialog->>TodosController: Send new todo title
-    TodosController->>TodosState: Update todo list
+    TodoAddDialog->>TodosController: Send create/update request
+    TodosController->>TodosState: Update todo list immutably
     TodosState-->>TodoScreen: Rebuild visible state
     CompletedTodosProvider-->>TodoScreen: Recompute completed count
     TodoScreen-->>User: Refresh UI
@@ -149,48 +149,48 @@ mindmap
 
 ## Project structure and responsibilities
 
-### Root entry points
+### 1. Root entry points
 
 - lib/main.dart
-  - Bootstraps the app and wraps it in ProviderScope for Riverpod availability.
+  - Bootstraps the Flutter app.
+  - Wraps the application in ProviderScope so Riverpod can be used anywhere in the widget tree.
 
 - lib/app/app.dart
-  - Defines the root MaterialApp.
-  - Applies the dark theme and routes the initial screen to TodoScreen.
+  - Defines the root app widget.
+  - Applies the dark Material 3 theme and sets TodoScreen as the home screen.
 
-### Shared infrastructure
+### 2. Shared infrastructure
 
 - lib/core/theme/app_colors.dart
-  - Centralizes color tokens used throughout the UI.
+  - Centralizes application color tokens.
+  - Keeps theme values consistent across widgets and screens.
 
 - lib/core/theme/app_theme.dart
-  - Builds the shared ThemeData for Material 3 styling.
-  - Controls background colors, cards, input fields, and buttons.
+  - Builds the global ThemeData for the app.
+  - Controls scaffold colors, card styling, buttons, inputs, and the dark visual theme.
 
-### Todo feature
-
-#### Domain layer
+### 3. Todo feature: domain layer
 
 - lib/features/todo/domain/todo.dart
   - Defines the Todo model.
-  - Uses Freezed to make instances immutable and easy to compare.
+  - Uses Freezed to create immutable value objects that are easy to copy and compare.
 
-#### Application layer
+### 4. Todo feature: application layer
 
 - lib/features/todo/application/state/todos_state.dart
-  - Represents the feature state.
-  - Stores the todo list, loading flag, and optional error message.
+  - Holds the current todo list state.
+  - Stores loading status and optional error information.
 
 - lib/features/todo/application/controller/todos/todos_controller.dart
-  - Main Riverpod controller for todo state.
-  - Handles add, toggle, delete, and update operations.
-  - Updates the state immutably through copyWith-based transitions.
+  - Main Riverpod controller for todo operations.
+  - Handles add, toggle, delete, and update actions.
+  - Updates state immutably through copyWith-based transitions.
 
 - lib/features/todo/application/controller/completed_todos/completed_todos_provider.dart
   - Computes the number of completed todos.
   - Keeps derived UI state separate from the main controller state.
 
-#### Presentation layer
+### 5. Todo feature: presentation layer
 
 - lib/features/todo/presentation/screens/todo_screen.dart
   - Main screen of the app.
@@ -198,41 +198,41 @@ mindmap
   - Renders empty, loading, error, and populated states.
 
 - lib/features/todo/presentation/widgets/overview_card.dart
-  - Shows summary progress for completed vs total todos.
+  - Displays a summary card for total and completed todo counts.
 
 - lib/features/todo/presentation/widgets/todo_add_dialog.dart
-  - Displays the dialog used to create a new todo.
-  - Validates input before forwarding it to the controller.
+  - Presents the dialog used to create or edit a todo.
+  - Validates user input before forwarding it to the controller.
 
 - lib/features/todo/presentation/widgets/todo_tile.dart
-  - Renders a single todo item.
-  - Contains the checkbox, title, edit, and delete controls.
+  - Renders each todo row.
+  - Contains checkbox, title, edit, and delete interactions.
 
-#### Data layer
+### 6. Todo feature: data layer
 
 - lib/features/todo/data/
   - Reserved for future persistence, repositories, or API adapters.
-  - Keeps storage concerns outside the presentation and application layers.
+  - Keeps storage concerns separate from presentation and application logic.
 
 ## Developer navigation guide
 
-If you are changing behavior in the app, the likely starting points are:
+If you are changing behavior in the app, the most likely starting points are:
 
 - UI changes: lib/features/todo/presentation/
-- State changes: lib/features/todo/application/
+- State and business flow changes: lib/features/todo/application/
 - Model changes: lib/features/todo/domain/
 - App-wide visual rules: lib/core/theme/
 
-## Current implementation notes
+## Implementation notes
 
 - The app already wires the shell, theme layer, and todo feature through Riverpod.
-- The core user flow is in place: add todos, toggle completion, delete todos, and view progress.
-- The current implementation is still evolving around UI polish and deeper feature expansion.
+- The core user flow is in place: add todos, toggle completion, edit todos, delete todos, and view progress.
+- The current implementation is still evolving around polish and future feature expansion.
 
 ## Contribution conventions
 
 - Keep new features under lib/features/<feature>/.
 - Keep widgets presentational and avoid embedding business rules in UI code.
-- Place state transitions and provider logic in application/.
+- Put state transitions and provider logic in application/.
 - Keep domain models immutable and focused on business concepts.
 - Treat generated files such as .g.dart and .freezed.dart as build artifacts rather than hand-edited sources.

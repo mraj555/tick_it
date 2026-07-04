@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 
-typedef AddTodoCallback = void Function(String);
+typedef AddOrEditTodoCallback = void Function(String);
 
 class TodoAddDialog extends StatefulWidget {
-  final AddTodoCallback onAddTodo;
+  final AddOrEditTodoCallback onAddTodo;
+  final String title;
+  final bool isEdit;
 
-  const TodoAddDialog({super.key, required this.onAddTodo});
+  const TodoAddDialog({
+    super.key,
+    required this.onAddTodo,
+    this.isEdit = false,
+    this.title = "",
+  });
 
   @override
   State<TodoAddDialog> createState() => _TodoAddDialogState();
@@ -13,6 +20,14 @@ class TodoAddDialog extends StatefulWidget {
 
 class _TodoAddDialogState extends State<TodoAddDialog> {
   final TextEditingController _controller = TextEditingController();
+
+  @override
+  void initState() {
+    if (widget.isEdit) {
+      _controller.text = widget.title;
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +40,10 @@ class _TodoAddDialogState extends State<TodoAddDialog> {
         child: Column(
           mainAxisSize: .min,
           children: [
-            Text("New ToDo", style: textTheme.titleLarge),
+            Text(
+              widget.isEdit ? "Update ToDo" : "New ToDo",
+              style: textTheme.titleLarge,
+            ),
             SizedBox(height: 20),
             TextField(
               controller: _controller,
@@ -46,16 +64,16 @@ class _TodoAddDialogState extends State<TodoAddDialog> {
                     final title = _controller.text.trim();
 
                     if (title.isEmpty) {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(SnackBar(content: Text("Please enter a title")));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Please enter a title")),
+                      );
                       return;
                     }
 
                     widget.onAddTodo(title);
                     Navigator.pop(context);
                   },
-                  child: Text("Add"),
+                  child: Text(widget.isEdit ? "Update" : "Add"),
                 ),
               ],
             ),
